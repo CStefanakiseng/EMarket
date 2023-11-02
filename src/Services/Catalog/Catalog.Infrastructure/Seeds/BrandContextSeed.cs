@@ -1,0 +1,27 @@
+﻿using Catalog.Domain.Entities;
+using MongoDB.Driver;
+using System.Text.Json;
+
+namespace Catalog.Infrastructure.Seeds
+{
+    public static class BrandContextSeed
+    {
+        public static void SeedData(IMongoCollection<ProductBrand> brandCollection)
+        {
+            bool checkBrands = brandCollection.Find(b => true).Any();
+            string path = Path.Combine("Seeds", "SeedData", "brands.json");
+            if (!checkBrands)
+            {
+                var brandsData = File.ReadAllText(path);
+                var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsData);
+                if (brands != null)
+                {
+                    foreach (var brand in brands)
+                    {
+                        brandCollection.InsertOneAsync(brand);
+                    }
+                }
+            }
+        }
+    }
+}
